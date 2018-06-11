@@ -2,4 +2,13 @@ language: csharp
 mono: none
 dotnet: 2.1.300
 script:
- - dotnet restore
+  - dotnet pack -c Release
+deploy:
+  skip_cleanup: true
+  provider: script
+  on:
+    branch: master
+  script:
+    - cd "AzZipGo/bin/Release"
+    - FILE=$(ls -t azzipgo.*.nupkg | head -1)
+    - dotnet nuget push $FILE -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
