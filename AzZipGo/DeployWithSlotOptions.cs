@@ -7,5 +7,8 @@ namespace AzZipGo
     {
         [Option("cleanup-after-success", Default = false)]
         public bool CleanupAfterSuccess { get; set; }
+
+        [Option("stop-webjobs", Default = true)]
+        public bool StopWebjobs { get; set; }
     }
 }

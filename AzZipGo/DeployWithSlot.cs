@@ -57,6 +57,24 @@ namespace AzZipGo
             return success ? 0 : 100;
         }
 
+        private async Task<IDeploymentSlot> CreateNewTempSlotAsync(IWebApp app)
+        {
+            var slotName = SlotNamePrefix + Guid.NewGuid().ToString().Substring(0, 8);
+
+            Console.WriteLine($"Creating temporary slot {slotName}...");
+
+            var request = app.DeploymentSlots.Define(slotName)
+                .WithConfigurationFromParent()
+                .WithAutoSwapSlotName(Options.TargetSlot);
+
+            if (Options.StopWebjobs)
+            {
+                request.WithStickyAppSetting("WEBJOBS_STOPPED", "1");
+            }
+
+            return await request.CreateAsync();
+        }
+
         private async Task RunCleanupAsync(IWebApp app, IDeploymentSlot slot)
         {
             Console.WriteLine($"Will delete temporary slot {slot.Name} in 2 minutes...");

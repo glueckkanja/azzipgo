@@ -200,17 +200,6 @@ namespace AzZipGo
             return temp;
         }
 
-        protected async Task<IDeploymentSlot> CreateNewTempSlotAsync(IWebApp app)
-        {
-            var slotName = SlotNamePrefix + Guid.NewGuid().ToString().Substring(0, 8);
-
-            Console.WriteLine($"Creating temporary slot {slotName}...");
-            return await app.DeploymentSlots.Define(slotName)
-                .WithConfigurationFromParent()
-                .WithAutoSwapSlotName(Options.TargetSlot)
-                .CreateAsync();
-        }
-
         protected async Task<IWebApp> GetSiteAsync()
         {
             Console.WriteLine($"Getting site {Options.Site}");
