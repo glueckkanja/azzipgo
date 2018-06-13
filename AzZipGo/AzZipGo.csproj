@@ -23,7 +23,7 @@
 * Runs everywhere
 * Uses Kudu's ZipDeploy feature
 * Uses an auto-generated Deployment Slot and Auto-Swap when using the "deploy-with-slot" command
-* Or deploys directly to a WebSite slot using the "deploy-inplace" command</Description>
+* Or deploys directly to a WebSite slot using the "deploy-in-place" command</Description>
     <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>
 
