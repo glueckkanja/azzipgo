@@ -1,20 +1,24 @@
 ﻿using Mono.Options;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AzZipGo
 {
     public class Program
     {
+        public static string MyVersion => typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
         private static async Task<int> Main(string[] args)
         {
             var deployWithSlotOptions = new DeployWithSlotOptions();
             var deployInplaceOptions = new DeployInplaceOptions();
 
             var suite = new CommandSet("azzipgo") {
+                $"Azure Zip'n'Go {MyVersion}",
+                "",
                 "Usage: azzipgo COMMAND [OPTIONS]+",
-                "Where COMMAND is one of:",
                 deployWithSlotOptions.Command,
                 deployInplaceOptions.Command,
             };
