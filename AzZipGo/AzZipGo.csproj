@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <PackageId>azzipgo</PackageId>
   </PropertyGroup>
 
@@ -16,6 +16,15 @@
     <Company>glueckkanja.com</Company>
     <PackageProjectUrl>https://github.com/glueckkanja/azzipgo</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/glueckkanja/azzipgo/blob/master/LICENSE</PackageLicenseUrl>
+    <Authors>glueckkanja.com</Authors>
+    <Description>AzZipGo is short for: Azure ☁️ – Zip 📦 and Go 🚀
+
+* Deploy all the things: Azure Websites, Function Apps and WebJobs!
+* Runs everywhere
+* Uses Kudu's ZipDeploy feature
+* Uses an auto-generated Deployment Slot and Auto-Swap when using the "deploy-with-slot" command
+* Or deploys directly to a WebSite slot using the "deploy-inplace" command</Description>
+    <RepositoryUrl></RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
