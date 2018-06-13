@@ -7,5 +7,6 @@ deploy:
   skip_cleanup: true
   provider: script
   on:
-    branch: master
+    tags: true
+    condition: "$TRAVIS_TAG =~ ^v\d+.\d+.\d+$"
   script: bash .deploy.sh
