@@ -1,22 +1,36 @@
-﻿using CommandLine;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
+﻿using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Mono.Options;
 using System;
 
 namespace AzZipGo
 {
-    public class Options
+    public abstract class Options
     {
-        [Option('u', "user", Required = true)]
+        public Options()
+        {
+            Command = new Command(CommandName, CommandHelp)
+            {
+                Options = new OptionSet(),
+                Run = (args) => IsActive = true,
+            };
+
+            Command.Options.Add("u|user=", "Service principal ID. Create in Azure using `az ad sp create-for-rbac`.", s => User = s);
+            Command.Options.Add("p|password=", "Service principal password.", s => Password = s);
+            Command.Options.Add("t|tenant=", "The tenant ID or name.", s => Tenant = s);
+            Command.Options.Add("environment:", "The Azure environment. One of: global (default), germany, china, usgov", (AzureEnvironmentOption s) => Environment = s);
+        }
+
+        public Command Command { get; }
+        public bool IsActive { get; private set; }
+
+        public abstract string CommandName { get; }
+        public abstract string CommandHelp { get; }
+
         public string User { get; set; }
-
-        [Option('p', "password", Required = true)]
         public string Password { get; set; }
-
-        [Option('t', "tenant", Required = true)]
         public string Tenant { get; set; }
 
-        [Option(Default = AzureEnvironmentOption.Global, HelpText = "One of: Global, Germany, China, UsGov")]
-        public AzureEnvironmentOption Environment { get; set; }
+        public AzureEnvironmentOption Environment { get; set; } = AzureEnvironmentOption.Global;
 
         public AzureEnvironment AzureEnvironment
         {
