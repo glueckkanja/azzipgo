@@ -220,7 +220,7 @@ namespace AzZipGo
                     continue;
                 }
 
-                if (oldSlot.Name.StartsWith(SlotNamePrefix))
+                if (oldSlot.Name.StartsWith(SlotNamePrefix + Options.TargetSlot + "-"))
                 {
                     Console.WriteLine($"Deleting old temporary slot {oldSlot.Name}...");
 

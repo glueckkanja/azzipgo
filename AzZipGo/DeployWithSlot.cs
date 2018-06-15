@@ -59,7 +59,7 @@ namespace AzZipGo
 
         private async Task<IDeploymentSlot> CreateNewTempSlotAsync(IWebApp app)
         {
-            var slotName = SlotNamePrefix + Guid.NewGuid().ToString().Substring(0, 8);
+            var slotName = SlotNamePrefix + Options.TargetSlot + "-" + Guid.NewGuid().ToString().Substring(0, 8);
 
             Console.WriteLine($"Creating temporary slot {slotName}...");
 
