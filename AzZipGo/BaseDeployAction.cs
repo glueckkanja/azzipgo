@@ -25,7 +25,10 @@ namespace AzZipGo
 
         public BaseDeployAction(T options) : base(options)
         {
-            AzureApi = Azure.Authenticate(CreateAzureCredentials()).WithSubscription(Options.Subscription);
+            AzureApi = Azure.Configure()
+                .WithDelegatingHandler(new WorkaroundDelegatingHandler(options))
+                .Authenticate(CreateAzureCredentials())
+                .WithSubscription(Options.Subscription);
         }
 
         public IAzure AzureApi { get; set; }
