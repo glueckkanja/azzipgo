@@ -1,6 +1,7 @@
 ﻿using AzZipGo.Kudu.Api;
 using Microsoft.Azure.Management.AppService.Fluent;
 using Microsoft.Azure.Management.Fluent;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Rest.Azure;
 using Newtonsoft.Json.Linq;
 using Polly;
@@ -25,9 +26,11 @@ namespace AzZipGo
 
         public BaseDeployAction(T options) : base(options)
         {
-            AzureApi = Azure.Authenticate(CreateAzureCredentials()).WithSubscription(Options.Subscription);
+            RestClient = RestClient.Configure().WithEnvironment(Options.AzureEnvironment).WithCredentials(CreateAzureCredentials()).Build();
+            AzureApi = Azure.Authenticate(RestClient, Options.Tenant).WithSubscription(Options.Subscription);
         }
 
+        public RestClient RestClient { get; set; }
         public IAzure AzureApi { get; set; }
 
         public string SiteId => $"/subscriptions/{Options.Subscription}/resourceGroups/{Options.ResourceGroup}/providers/Microsoft.Web/sites/{Options.Site}";
