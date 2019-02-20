@@ -18,7 +18,7 @@ namespace AzZipGo
 {
     public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOptions
     {
-        private static readonly RetryPolicy HttpPolicy = Policy
+        private static readonly AsyncRetryPolicy HttpPolicy = Policy
             .Handle<HttpRequestException>()
             .WaitAndRetryAsync(3,
                 retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
