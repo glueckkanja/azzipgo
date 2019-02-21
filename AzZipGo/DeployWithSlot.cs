@@ -21,6 +21,8 @@ namespace AzZipGo
             var slotTemp = await CreateNewTempSlotAsync(app);
             var ppTemp = await slotTemp.GetPublishingProfileAsync();
 
+            await ManageRunFromZipAsync(slotTemp.Name);
+
             var latestDeployment = await GetLatestDeployment(ppTarget);
 
             var path = CreateZipFile();

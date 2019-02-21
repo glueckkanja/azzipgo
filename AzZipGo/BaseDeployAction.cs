@@ -1,5 +1,6 @@
 ﻿using AzZipGo.Kudu.Api;
 using Microsoft.Azure.Management.AppService.Fluent;
+using Microsoft.Azure.Management.AppService.Fluent.Models;
 using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Rest.Azure;
@@ -208,6 +209,80 @@ namespace AzZipGo
             Console.WriteLine($"Getting site {Options.Site}");
             var app = await AzureApi.WebApps.GetByIdAsync(SiteId);
             return app;
+        }
+
+        protected async Task ManageRunFromZipAsync(string slot)
+        {
+            using (var mgmtClient = new WebSiteManagementClient(RestClient) { SubscriptionId = Options.Subscription })
+            {
+                Task<SlotConfigNamesResourceInner> slotNamesTask;
+                Task<StringDictionaryInner> settingsTask;
+
+                if (slot != "production")
+                {
+                    slotNamesTask = mgmtClient.WebApps.ListSlotConfigurationNamesAsync(Options.ResourceGroup, Options.Site);
+                    settingsTask = mgmtClient.WebApps.ListApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, slot);
+                }
+                else
+                {
+                    slotNamesTask = mgmtClient.WebApps.ListSlotConfigurationNamesAsync(Options.ResourceGroup, Options.Site);
+                    settingsTask = mgmtClient.WebApps.ListApplicationSettingsAsync(Options.ResourceGroup, Options.Site);
+                }
+
+                var slotNames = await slotNamesTask;
+                var settings = await settingsTask;
+
+                if (slot != "production")
+                {
+                    if (Options.RunFromPackage)
+                    {
+                        await MakeRunFromPackageNonStickyIfRequiredAsync(mgmtClient, slotNames);
+
+                        if (!settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value) || value != "1")
+                        {
+                            settings.Properties["WEBSITE_RUN_FROM_PACKAGE"] = "1";
+                            await mgmtClient.WebApps.UpdateApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, settings, slot);
+                            Console.WriteLine($"Set application setting WEBSITE_RUN_FROM_PACKAGE for slot {slot} to 1.");
+                        }
+                    }
+                    else if (settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value))
+                    {
+                        settings.Properties.Remove("WEBSITE_RUN_FROM_PACKAGE");
+                        await mgmtClient.WebApps.UpdateApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, settings, slot);
+                        Console.WriteLine($"Removed application setting WEBSITE_RUN_FROM_PACKAGE from slot {slot}.");
+                    }
+                }
+                else
+                {
+                    if (Options.RunFromPackage)
+                    {
+                        await MakeRunFromPackageNonStickyIfRequiredAsync(mgmtClient, slotNames);
+
+                        if (!settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value) || value != "1")
+                        {
+                            settings.Properties["WEBSITE_RUN_FROM_PACKAGE"] = "1";
+                            await mgmtClient.WebApps.UpdateApplicationSettingsAsync(Options.ResourceGroup, Options.Site, settings);
+                            Console.WriteLine($"Set application setting WEBSITE_RUN_FROM_PACKAGE for slot {slot} to 1.");
+                        }
+                    }
+                    else if (settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value))
+                    {
+                        settings.Properties.Remove("WEBSITE_RUN_FROM_PACKAGE");
+                        await mgmtClient.WebApps.UpdateApplicationSettingsAsync(Options.ResourceGroup, Options.Site, settings);
+                        Console.WriteLine($"Removed application setting WEBSITE_RUN_FROM_PACKAGE from slot {slot}.");
+                    }
+                }
+            }
+        }
+
+        private async Task MakeRunFromPackageNonStickyIfRequiredAsync(WebSiteManagementClient mgmtClient, SlotConfigNamesResourceInner slotNames)
+        {
+            if (!slotNames.AppSettingNames.Contains("WEBSITE_RUN_FROM_PACKAGE"))
+                return;
+
+            slotNames.AppSettingNames.Remove("WEBSITE_RUN_FROM_PACKAGE");
+            await mgmtClient.WebApps.UpdateSlotConfigurationNamesAsync(Options.ResourceGroup, Options.Site, slotNames);
+            Console.WriteLine("Removed application setting WEBSITE_RUN_FROM_PACKAGE from list of slot settings.");
         }
 
         private async Task<IDeploymentSlot> FindTargetSlotAndCleanOldSlotsAsync(IWebApp app)
