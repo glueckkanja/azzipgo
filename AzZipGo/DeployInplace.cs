@@ -67,7 +67,7 @@ namespace AzZipGo
                     {
                         await MakeRunFromPackageNonStickyIfRequiredAsync(mgmtClient, slotNames);
 
-                        if (settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value) && value != "1")
+                        if (!settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value) || value != "1")
                         {
                             settings.Properties["WEBSITE_RUN_FROM_PACKAGE"] = "1";
                             await mgmtClient.WebApps.UpdateApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, settings, Options.TargetSlot);
@@ -87,7 +87,7 @@ namespace AzZipGo
                     {
                         await MakeRunFromPackageNonStickyIfRequiredAsync(mgmtClient, slotNames);
 
-                        if (settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value) && value != "1")
+                        if (!settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value) || value != "1")
                         {
                             settings.Properties["WEBSITE_RUN_FROM_PACKAGE"] = "1";
                             await mgmtClient.WebApps.UpdateApplicationSettingsAsync(Options.ResourceGroup, Options.Site, settings);
