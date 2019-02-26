@@ -247,9 +247,19 @@ namespace AzZipGo
                     }
                     else if (settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value))
                     {
-                        settings.Properties.Remove("WEBSITE_RUN_FROM_PACKAGE");
-                        await mgmtClient.WebApps.UpdateApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, settings, slot);
-                        Console.WriteLine($"Removed application setting WEBSITE_RUN_FROM_PACKAGE from slot {slot}.");
+                        if (value == "1")
+                        {
+                            // Needs to be disabled first.
+                            settings.Properties["WEBSITE_RUN_FROM_PACKAGE"] = "0";
+                            await mgmtClient.WebApps.UpdateApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, settings, slot);
+                            Console.WriteLine($"Set application setting WEBSITE_RUN_FROM_PACKAGE for slot {slot} to 0.");
+                        }
+                        else
+                        {
+                            settings.Properties.Remove("WEBSITE_RUN_FROM_PACKAGE");
+                            await mgmtClient.WebApps.UpdateApplicationSettingsSlotAsync(Options.ResourceGroup, Options.Site, settings, slot);
+                            Console.WriteLine($"Removed application setting WEBSITE_RUN_FROM_PACKAGE from slot {slot}.");
+                        }
                     }
                 }
                 else
@@ -267,9 +277,19 @@ namespace AzZipGo
                     }
                     else if (settings.Properties.TryGetValue("WEBSITE_RUN_FROM_PACKAGE", out var value))
                     {
-                        settings.Properties.Remove("WEBSITE_RUN_FROM_PACKAGE");
-                        await mgmtClient.WebApps.UpdateApplicationSettingsAsync(Options.ResourceGroup, Options.Site, settings);
-                        Console.WriteLine($"Removed application setting WEBSITE_RUN_FROM_PACKAGE from slot {slot}.");
+                        if (value == "1")
+                        {
+                            // Needs to be disabled first.
+                            settings.Properties["WEBSITE_RUN_FROM_PACKAGE"] = "0";
+                            await mgmtClient.WebApps.UpdateApplicationSettingsAsync(Options.ResourceGroup, Options.Site, settings);
+                            Console.WriteLine($"Set application setting WEBSITE_RUN_FROM_PACKAGE for slot {slot} to 0.");
+                        }
+                        else
+                        {
+                            settings.Properties.Remove("WEBSITE_RUN_FROM_PACKAGE");
+                            await mgmtClient.WebApps.UpdateApplicationSettingsAsync(Options.ResourceGroup, Options.Site, settings);
+                            Console.WriteLine($"Removed application setting WEBSITE_RUN_FROM_PACKAGE from slot {slot}.");
+                        }
                     }
                 }
             }
