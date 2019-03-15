@@ -23,9 +23,15 @@ Deploy Site using ZipDeploy and run the deployment in-place without a temporary 
 
 ### Generic Options
 
+* u|user -- Service principal ID. Create in Azure using ```az ad sp create-for-rbac```.
+* p|password -- Service principal password
+* t|tenant -- The tenant ID or name
+* environment -- The Azure environment. One of: *global* (default), *germany*, *china*, *usgov*
+
 * s|subscription -- The subscription ID
 * g|resource-group -- The resource group of the website
 * d|directory -- The path to the directory to deploy
 * site -- The site name to deploy to
 * target-slot -- The slot name to deploy to. Use *production* to deploy to the specified website directly.
 * run-from-package -- Set or remove app setting WEBSITE_RUN_FROM_PACKAGE for the target or temp slot. This will enable or disable the Run From Package feature. Default = false
+
