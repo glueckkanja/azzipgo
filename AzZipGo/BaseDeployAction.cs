@@ -150,14 +150,23 @@ namespace AzZipGo
 
             using (var response = await http.GetAsync(pollUrl))
             {
+                var text = "No Response";
+
                 try
                 {
-                    var text = await response.Content.ReadAsStringAsync();
+                    text = await response.Content.ReadAsStringAsync();
                     deployment = JObject.Parse(text).ToObject<Deployment>();
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine();
+                    Console.WriteLine("Unable to parse 'Deployment'!");
+                    Console.WriteLine("Response was:");
+                    Console.WriteLine(text);
+                    Console.WriteLine("Exception:");
                     Console.WriteLine(e.Demystify());
+                    Console.WriteLine();
+
                     deployment = new Deployment { id = "0000000000000000000000000000000000000000" };
                 }
             }
