@@ -1,0 +1,12 @@
+language: csharp
+mono: none
+dotnet: 2.1.300
+script:
+  - dotnet pack -c Release
+deploy:
+  skip_cleanup: true
+  provider: script
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+  script: bash .deploy.sh
