@@ -15,7 +15,7 @@
     <PackAsTool>true</PackAsTool>
     <Company>glueckkanja.com</Company>
     <PackageProjectUrl>https://github.com/glueckkanja/azzipgo</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/glueckkanja/azzipgo/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>glueckkanja.com</Authors>
     <Description>AzZipGo is short for: Azure ☁️ – Zip 📦 and Go 🚀
 
