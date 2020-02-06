@@ -306,7 +306,7 @@ namespace AzZipGo
 
         private async Task MakeRunFromPackageNonStickyIfRequiredAsync(WebSiteManagementClient mgmtClient, SlotConfigNamesResourceInner slotNames)
         {
-            if (!slotNames.AppSettingNames.Contains("WEBSITE_RUN_FROM_PACKAGE"))
+            if (slotNames.AppSettingNames?.Contains("WEBSITE_RUN_FROM_PACKAGE") != true)
                 return;
 
             slotNames.AppSettingNames.Remove("WEBSITE_RUN_FROM_PACKAGE");
