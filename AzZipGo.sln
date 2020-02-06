@@ -1,14 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzZipGo", "AzZipGo\AzZipGo.csproj", "{DF7A2295-D1D9-4112-8FEA-E661D62AE082}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA8CAD1B-1371-4162-A8DE-E59D7840ED26}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{79F60B3D-8274-453C-B8FA-C18387DBF088}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{8EA8B84D-6DA2-4342-89CD-2C6662B0039D}"
 	ProjectSection(SolutionItems) = preProject
-		.deploy.sh = .deploy.sh
-		.travis.yml = .travis.yml
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
 	EndProjectSection
 EndProject
 Global
@@ -24,6 +26,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8EA8B84D-6DA2-4342-89CD-2C6662B0039D} = {79F60B3D-8274-453C-B8FA-C18387DBF088}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {22B21558-9072-4EF8-B2EA-151679E7F1B1}
