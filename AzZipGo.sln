@@ -1,15 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzZipGo", "AzZipGo\AzZipGo.csproj", "{DF7A2295-D1D9-4112-8FEA-E661D62AE082}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA8CAD1B-1371-4162-A8DE-E59D7840ED26}"
-	ProjectSection(SolutionItems) = preProject
-		.deploy.sh = .deploy.sh
-		.travis.yml = .travis.yml
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
