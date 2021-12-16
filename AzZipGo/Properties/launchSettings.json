@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "AzZipGo": {
+      "commandName": "Project",
+      "commandLineArgs": "deploy-in-place --run-from-package -u 7cd3e66b-262e-4955-8aec-4c47eb49d0e5 -p HMH7Q~ZrA-sD~QKxRZG_rn4t4CgbWWeEMn-0D -t guk.onmicrosoft.com -s bbaa1189-e3bc-4aae-bc2b-d0fa89584140 -g prd-webapps01-msdn-weeu-rg -d \"C:\\Users\\JanBerdel\\OneDrive - glueckkanja-gab\\Code\\azzipgo-test\" --site azzipgo-test --target-slot production",
+      //"commandLineArgs": "deploy-with-slot --cleanup-after-success --run-from-package -u 7cd3e66b-262e-4955-8aec-4c47eb49d0e5 -p HMH7Q~ZrA-sD~QKxRZG_rn4t4CgbWWeEMn-0D -t guk.onmicrosoft.com -s bbaa1189-e3bc-4aae-bc2b-d0fa89584140 -g prd-webapps01-msdn-weeu-rg -d \"C:\\Users\\JanBerdel\\OneDrive - glueckkanja-gab\\Code\\azzipgo-test\" --site azzipgo-test --target-slot production"
+    }
+  }
+}
