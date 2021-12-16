@@ -23,7 +23,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
         .Handle<HttpRequestException>()
         .WaitAndRetryAsync(3,
             retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                (exception, timeSpan, retryCount, context) => Console.WriteLine($"HTTP retry {retryCount}: {exception.Demystify()}."));
+                (exception, timeSpan, retryCount, context) => Console.WriteLine($"HTTP retry {retryCount}: {exception}."));
 
     public BaseDeployAction(T options) : base(options)
     {
@@ -162,7 +162,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
                 Console.WriteLine("Response was:");
                 Console.WriteLine(text);
                 Console.WriteLine("Exception:");
-                Console.WriteLine(e.Demystify());
+                Console.WriteLine(e);
                 Console.WriteLine();
 
                 deployment = new Deployment { id = "0000000000000000000000000000000000000000" };

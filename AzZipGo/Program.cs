@@ -45,13 +45,6 @@ public class Program
 
     private static async Task<int> Run(IBaseAction operation)
     {
-        try
-        {
-            return await operation.RunAsync();
-        }
-        catch (Exception e)
-        {
-            throw e.Demystify();
-        }
+        return await operation.RunAsync();
     }
 }
