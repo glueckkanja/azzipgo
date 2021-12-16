@@ -1,6 +1,6 @@
 language: csharp
 mono: none
-dotnet: 2.1.300
+dotnet: 6.0.101
 script:
   - dotnet pack -c Release
 deploy:
