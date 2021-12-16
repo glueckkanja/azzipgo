@@ -27,14 +27,17 @@ public class DeployWithSlot : BaseDeployAction<DeployWithSlotOptions>
 
         var path = CreateZipFile();
 
-        var upload = await PostFileAsync(ppTemp, path);
+        var (code, pollUrl) = await PostFileAsync(ppTemp, path);
 
-        if (upload.Code != HttpStatusCode.Accepted)
-            return (int)upload.Code;
+        if (code != HttpStatusCode.Accepted)
+            return (int)code;
+
+        if (pollUrl is null)
+            return 9999;
 
         File.Delete(path);
 
-        var success = await WaitForCompleteAsync(ppTemp, latestDeployment, upload, true);
+        var success = await WaitForCompleteAsync(ppTemp, latestDeployment, pollUrl, true);
 
         Console.WriteLine();
 

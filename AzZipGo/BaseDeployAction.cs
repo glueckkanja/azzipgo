@@ -36,7 +36,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
     public string SiteId => $"/subscriptions/{Options.Subscription}/resourceGroups/{Options.ResourceGroup}/providers/Microsoft.Web/sites/{Options.Site}";
 
-    protected async Task<bool> WaitForCompleteAsync(IPublishingProfile ppSlot, Deployment latestDeployment, (HttpStatusCode Code, Uri PollUrl) upload, bool withSwap)
+    protected async Task<bool> WaitForCompleteAsync(IPublishingProfile ppSlot, Deployment latestDeployment, Uri pollUrl, bool withSwap)
     {
         Console.Write($"Waiting for deployment to complete...");
 
@@ -47,11 +47,11 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
         var kuduDeployCompleted = false;
 
-        Deployment deployment = null;
+        Deployment? deployment = null;
 
         for (int i = 0; i < 600; i++)
         {
-            deployment = await GetDeploymentAsync(http, upload.PollUrl);
+            deployment = await GetDeploymentAsync(http, pollUrl);
 
             if (deployment.status == DeployStatus.Failed)
             {
@@ -110,19 +110,17 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
         using (var fs = File.OpenRead(path))
         {
-            Uri pollUrl = null;
-
-            var code = await HttpPolicy.ExecuteAsync(async () =>
+            var (code, pollUrl) = await HttpPolicy.ExecuteAsync(async () =>
             {
                 Console.WriteLine($"HTTP: POST {fs.Length / 1024.0:f1} KiB to {zipDeployUrl}");
 
                 using (var response = await http.PostAsync(zipDeployUrl, new StreamContent(fs)))
                 {
-                    pollUrl = response.Headers.Location;
+                    var pollUrl = response.Headers.Location;
 
                     Console.WriteLine("  > " + response.StatusCode);
 
-                    return response.StatusCode;
+                    return (response.StatusCode, pollUrl);
                 }
             });
 
@@ -314,9 +312,9 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
         Console.WriteLine("Removed application setting WEBSITE_RUN_FROM_PACKAGE from list of slot settings.");
     }
 
-    private async Task<IDeploymentSlot> FindTargetSlotAndCleanOldSlotsAsync(IWebApp app)
+    private async Task<IDeploymentSlot?> FindTargetSlotAndCleanOldSlotsAsync(IWebApp app)
     {
-        IDeploymentSlot slot = null;
+        IDeploymentSlot? slot = null;
 
         // clean old deployments
         foreach (var oldSlot in await app.DeploymentSlots.ListAsync())

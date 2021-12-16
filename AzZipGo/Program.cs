@@ -8,7 +8,7 @@ namespace AzZipGo;
 
 public class Program
 {
-    public static string MyVersion => typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+    public static string? MyVersion => typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
     private static async Task<int> Main(string[] args)
     {
@@ -16,7 +16,7 @@ public class Program
         var deployInplaceOptions = new DeployInplaceOptions();
 
         var suite = new CommandSet("azzipgo") {
-                $"Azure Zip'n'Go {MyVersion}",
+                $"Azure Zip'n'Go {MyVersion ?? "(unknown version)"}",
                 "",
                 "Usage: azzipgo COMMAND [OPTIONS]+",
                 deployWithSlotOptions.Command,

@@ -14,10 +14,10 @@ public abstract class DeployOptions : Options
         Command.Options.Add("run-from-package", "Set or remove app setting WEBSITE_RUN_FROM_PACKAGE for the target or temp slot. This will enable or disable the Run From Package feature. Default = false", s => RunFromPackage = (s != null));
     }
 
-    public string Subscription { get; set; }
-    public string ResourceGroup { get; set; }
-    public string Directory { get; set; }
-    public string Site { get; set; }
-    public string TargetSlot { get; set; }
+    public string Subscription { get; set; } = "";
+    public string ResourceGroup { get; set; } = "";
+    public string Directory { get; set; } = "";
+    public string Site { get; set; } = "";
+    public string TargetSlot { get; set; } = "";
     public bool RunFromPackage { get; set; }
 }

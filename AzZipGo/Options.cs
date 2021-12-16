@@ -26,9 +26,9 @@ public abstract class Options
     public abstract string CommandName { get; }
     public abstract string CommandHelp { get; }
 
-    public string User { get; set; }
-    public string Password { get; set; }
-    public string Tenant { get; set; }
+    public string User { get; set; } = "";
+    public string Password { get; set; } = "";
+    public string Tenant { get; set; } = "";
 
     public AzureEnvironmentOption Environment { get; set; } = AzureEnvironmentOption.Global;
 

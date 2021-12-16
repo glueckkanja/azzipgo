@@ -22,14 +22,17 @@ public class DeployInplace : BaseDeployAction<DeployInplaceOptions>
 
         var path = CreateZipFile();
 
-        var upload = await PostFileAsync(ppTarget, path);
+        var (code, pollUrl) = await PostFileAsync(ppTarget, path);
 
-        if (upload.Code != HttpStatusCode.Accepted)
-            return (int)upload.Code;
+        if (code != HttpStatusCode.Accepted)
+            return (int)code;
+
+        if (pollUrl is null)
+            return 9999;
 
         File.Delete(path);
 
-        var success = await WaitForCompleteAsync(ppTarget, latestDeployment, upload, false);
+        var success = await WaitForCompleteAsync(ppTarget, latestDeployment, pollUrl, false);
 
         Console.WriteLine();
         Console.WriteLine(success ? "Deployment succeeded." : "Deployment failed.");
