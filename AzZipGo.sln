@@ -7,6 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzZipGo", "AzZipGo\AzZipGo.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA8CAD1B-1371-4162-A8DE-E59D7840ED26}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{B108DF95-A6B4-4D2B-8770-DF8AA7F551E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{4BC6071E-F484-4207-A1FE-3212041F5F9B}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +28,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B108DF95-A6B4-4D2B-8770-DF8AA7F551E4} = {FA8CAD1B-1371-4162-A8DE-E59D7840ED26}
+		{4BC6071E-F484-4207-A1FE-3212041F5F9B} = {B108DF95-A6B4-4D2B-8770-DF8AA7F551E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {22B21558-9072-4EF8-B2EA-151679E7F1B1}
