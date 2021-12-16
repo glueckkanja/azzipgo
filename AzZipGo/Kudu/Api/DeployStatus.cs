@@ -1,11 +1,10 @@
-﻿namespace AzZipGo.Kudu.Api
+﻿namespace AzZipGo.Kudu.Api;
+
+public enum DeployStatus
 {
-    public enum DeployStatus
-    {
-        Pending,
-        Building,
-        Deploying,
-        Failed,
-        Success
-    }
+    Pending,
+    Building,
+    Deploying,
+    Failed,
+    Success
 }

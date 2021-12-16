@@ -3,38 +3,37 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace AzZipGo
+namespace AzZipGo;
+
+public class DeployInplace : BaseDeployAction<DeployInplaceOptions>
 {
-    public class DeployInplace : BaseDeployAction<DeployInplaceOptions>
+    public DeployInplace(DeployInplaceOptions options) : base(options)
     {
-        public DeployInplace(DeployInplaceOptions options) : base(options)
-        {
-        }
+    }
 
-        public override async Task<int> RunAsync()
-        {
-            var app = await GetSiteAsync();
-            var ppTarget = await GetTargetPublishingProfileAsync(app);
+    public override async Task<int> RunAsync()
+    {
+        var app = await GetSiteAsync();
+        var ppTarget = await GetTargetPublishingProfileAsync(app);
 
-            await ManageRunFromZipAsync(Options.TargetSlot);
+        await ManageRunFromZipAsync(Options.TargetSlot);
 
-            var latestDeployment = await GetLatestDeployment(ppTarget);
+        var latestDeployment = await GetLatestDeployment(ppTarget);
 
-            var path = CreateZipFile();
+        var path = CreateZipFile();
 
-            var upload = await PostFileAsync(ppTarget, path);
+        var upload = await PostFileAsync(ppTarget, path);
 
-            if (upload.Code != HttpStatusCode.Accepted)
-                return (int)upload.Code;
+        if (upload.Code != HttpStatusCode.Accepted)
+            return (int)upload.Code;
 
-            File.Delete(path);
+        File.Delete(path);
 
-            var success = await WaitForCompleteAsync(ppTarget, latestDeployment, upload, false);
+        var success = await WaitForCompleteAsync(ppTarget, latestDeployment, upload, false);
 
-            Console.WriteLine();
-            Console.WriteLine(success ? "Deployment succeeded." : "Deployment failed.");
+        Console.WriteLine();
+        Console.WriteLine(success ? "Deployment succeeded." : "Deployment failed.");
 
-            return success ? 0 : 100;
-        }
+        return success ? 0 : 100;
     }
 }

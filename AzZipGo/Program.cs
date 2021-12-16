@@ -4,18 +4,18 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AzZipGo
+namespace AzZipGo;
+
+public class Program
 {
-    public class Program
+    public static string MyVersion => typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
+    private static async Task<int> Main(string[] args)
     {
-        public static string MyVersion => typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+        var deployWithSlotOptions = new DeployWithSlotOptions();
+        var deployInplaceOptions = new DeployInplaceOptions();
 
-        private static async Task<int> Main(string[] args)
-        {
-            var deployWithSlotOptions = new DeployWithSlotOptions();
-            var deployInplaceOptions = new DeployInplaceOptions();
-
-            var suite = new CommandSet("azzipgo") {
+        var suite = new CommandSet("azzipgo") {
                 $"Azure Zip'n'Go {MyVersion}",
                 "",
                 "Usage: azzipgo COMMAND [OPTIONS]+",
@@ -23,36 +23,35 @@ namespace AzZipGo
                 deployInplaceOptions.Command,
             };
 
-            var code = suite.Run(args);
+        var code = suite.Run(args);
 
-            if (code != 0)
-            {
-                return code;
-            }
-
-            if (deployWithSlotOptions.IsActive)
-            {
-                return await Run(new DeployWithSlot(deployWithSlotOptions));
-            }
-
-            if (deployInplaceOptions.IsActive)
-            {
-                return await Run(new DeployInplace(deployInplaceOptions));
-            }
-
-            return 1;
+        if (code != 0)
+        {
+            return code;
         }
 
-        private static async Task<int> Run(IBaseAction operation)
+        if (deployWithSlotOptions.IsActive)
         {
-            try
-            {
-                return await operation.RunAsync();
-            }
-            catch (Exception e)
-            {
-                throw e.Demystify();
-            }
+            return await Run(new DeployWithSlot(deployWithSlotOptions));
+        }
+
+        if (deployInplaceOptions.IsActive)
+        {
+            return await Run(new DeployInplace(deployInplaceOptions));
+        }
+
+        return 1;
+    }
+
+    private static async Task<int> Run(IBaseAction operation)
+    {
+        try
+        {
+            return await operation.RunAsync();
+        }
+        catch (Exception e)
+        {
+            throw e.Demystify();
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace AzZipGo
+namespace AzZipGo;
+
+public interface IBaseAction
 {
-    public interface IBaseAction
-    {
-        Task<int> RunAsync();
-    }
+    Task<int> RunAsync();
 }
