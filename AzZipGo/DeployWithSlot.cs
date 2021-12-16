@@ -17,17 +17,19 @@ public class DeployWithSlot : BaseDeployAction<DeployWithSlotOptions>
     {
         var app = await GetSiteAsync();
         var ppTarget = await GetTargetPublishingProfileAsync(app);
+        using var ppTargetClient = CreateHttpClient(ppTarget);
 
         var slotTemp = await CreateNewTempSlotAsync(app);
         var ppTemp = await slotTemp.GetPublishingProfileAsync();
+        using var ppTempClient = CreateHttpClient(ppTemp);
 
         await ManageRunFromZipAsync(slotTemp.Name);
 
-        var latestDeployment = await GetLatestDeployment(ppTarget);
+        var latestDeployment = await GetLatestDeployment(ppTarget, ppTargetClient);
 
         var path = CreateZipFile();
 
-        var (code, pollUrl) = await PostFileAsync(ppTemp, path);
+        var (code, pollUrl) = await PostFileAsync(ppTemp, ppTempClient, path);
 
         if (code != HttpStatusCode.Accepted)
             return (int)code;
@@ -37,7 +39,7 @@ public class DeployWithSlot : BaseDeployAction<DeployWithSlotOptions>
 
         File.Delete(path);
 
-        var success = await WaitForCompleteAsync(ppTemp, latestDeployment, pollUrl, true);
+        var success = await WaitForCompleteAsync(ppTempClient, latestDeployment, pollUrl, true);
 
         Console.WriteLine();
 
@@ -66,7 +68,7 @@ public class DeployWithSlot : BaseDeployAction<DeployWithSlotOptions>
     {
         var slotName = SlotNamePrefix + Options.TargetSlot + "-" + Guid.NewGuid().ToString().Substring(0, 8);
 
-        Console.WriteLine($"Creating temporary slot {slotName}...");
+        Console.WriteLine($"Creating temporary slot {slotName}.");
 
         var request = app.DeploymentSlots.Define(slotName)
             .WithConfigurationFromParent()
@@ -86,7 +88,7 @@ public class DeployWithSlot : BaseDeployAction<DeployWithSlotOptions>
 
         await Task.Delay(TimeSpan.FromMinutes(2));
 
-        Console.WriteLine($"Deleting temporary slot {slot.Name}...");
+        Console.WriteLine($"Deleting temporary slot {slot.Name}.");
 
         try
         {

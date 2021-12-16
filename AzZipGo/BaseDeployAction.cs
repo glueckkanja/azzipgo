@@ -4,7 +4,6 @@ using Microsoft.Azure.Management.AppService.Fluent.Models;
 using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Rest.Azure;
-using Newtonsoft.Json.Linq;
 using Polly;
 using Polly.Retry;
 using System;
@@ -13,6 +12,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AzZipGo;
@@ -36,30 +36,24 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
     public string SiteId => $"/subscriptions/{Options.Subscription}/resourceGroups/{Options.ResourceGroup}/providers/Microsoft.Web/sites/{Options.Site}";
 
-    protected async Task<bool> WaitForCompleteAsync(IPublishingProfile ppSlot, Deployment latestDeployment, Uri pollUrl, bool withSwap)
+    protected async Task<bool> WaitForCompleteAsync(HttpClient client, Deployment latestDeployment, Uri pollUrl, bool withSwap)
     {
         Console.Write($"Waiting for deployment to complete...");
 
         var success = false;
-
-        var handler = new HttpClientHandler { Credentials = new NetworkCredential(ppSlot.GitUsername, ppSlot.GitPassword) };
-        var http = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
-
         var kuduDeployCompleted = false;
-
-        Deployment? deployment = null;
 
         for (int i = 0; i < 600; i++)
         {
-            deployment = await GetDeploymentAsync(http, pollUrl);
+            var deployment = await GetDeploymentAsync(client, pollUrl);
 
-            if (deployment.status == DeployStatus.Failed)
+            if (deployment.Status == DeployStatus.Failed)
             {
                 Console.WriteLine("SCM deployment failed.");
                 return false;
             }
 
-            if (deployment.status == DeployStatus.Success && !kuduDeployCompleted)
+            if (deployment.Status == DeployStatus.Success && !kuduDeployCompleted)
             {
                 kuduDeployCompleted = true;
 
@@ -73,7 +67,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
             if (withSwap)
             {
-                if (deployment.id == latestDeployment.id)
+                if (deployment.ID == latestDeployment.ID)
                 {
                     Console.WriteLine();
                     success = true;
@@ -82,7 +76,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
             }
             else
             {
-                if (deployment.id != latestDeployment.id)
+                if (deployment.ID != latestDeployment.ID)
                 {
                     Console.WriteLine();
                     success = true;
@@ -100,12 +94,9 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
         return success;
     }
 
-    protected async Task<(HttpStatusCode Code, Uri PollUrl)> PostFileAsync(IPublishingProfile ppSlot, string path)
+    protected async Task<(HttpStatusCode Code, Uri PollUrl)> PostFileAsync(IPublishingProfile pp, HttpClient client, string path)
     {
-        var handler = new HttpClientHandler { Credentials = new NetworkCredential(ppSlot.GitUsername, ppSlot.GitPassword) };
-        var http = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
-
-        var slotHost = ppSlot.GitUrl.Split(':')[0];
+        var slotHost = pp.GitUrl.Split(':')[0];
         var zipDeployUrl = new UriBuilder() { Scheme = "https", Host = slotHost, Path = "/api/zipdeploy", Query = "isAsync=true" }.ToString();
 
         using (var fs = File.OpenRead(path))
@@ -114,7 +105,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
             {
                 Console.WriteLine($"HTTP: POST {fs.Length / 1024.0:f1} KiB to {zipDeployUrl}");
 
-                using (var response = await http.PostAsync(zipDeployUrl, new StreamContent(fs)))
+                using (var response = await client.PostAsync(zipDeployUrl, new StreamContent(fs)))
                 {
                     var pollUrl = response.Headers.Location;
 
@@ -134,86 +125,82 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
         if (targetSlot != null)
         {
-            Console.WriteLine($"Retrieving publishing profile of slot {targetSlot.Name}...");
+            Console.WriteLine($"Retrieving publishing profile of slot {targetSlot.Name}.");
             return await targetSlot.GetPublishingProfileAsync();
         }
 
-        Console.WriteLine($"Retrieving publishing profile of production slot...");
+        Console.WriteLine($"Retrieving publishing profile of slot production.");
         return await app.GetPublishingProfileAsync();
+    }
+
+    protected HttpClient CreateHttpClient(IPublishingProfile pp)
+    {
+        var handler = new HttpClientHandler { Credentials = new NetworkCredential(pp.GitUsername, pp.GitPassword) };
+
+        return new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
     }
 
     protected static async Task<Deployment> GetDeploymentAsync(HttpClient http, Uri pollUrl)
     {
-        Deployment deployment;
-
         using (var response = await http.GetAsync(pollUrl))
         {
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return default;
+
             var text = "No Response";
 
             try
             {
                 text = await response.Content.ReadAsStringAsync();
-                deployment = JObject.Parse(text).ToObject<Deployment>();
+
+                return JsonSerializer.Deserialize<Deployment>(text);
             }
             catch (Exception e)
             {
                 Console.WriteLine();
                 Console.WriteLine("Unable to parse 'Deployment'!");
                 Console.WriteLine("Response was:");
-                Console.WriteLine(text);
+                Console.WriteLine(">> " + text);
                 Console.WriteLine("Exception:");
-                Console.WriteLine(e);
+                Console.WriteLine(">> " + e);
                 Console.WriteLine();
-
-                deployment = new Deployment { id = "0000000000000000000000000000000000000000" };
             }
         }
 
-        return deployment;
+        return default;
     }
 
-    protected static async Task<Deployment> GetLatestDeployment(IPublishingProfile pp)
+    protected static async Task<Deployment> GetLatestDeployment(IPublishingProfile pp, HttpClient client)
     {
-        var handler = new HttpClientHandler { Credentials = new NetworkCredential(pp.GitUsername, pp.GitPassword) };
-        var http = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
-
         var appHost = pp.GitUrl.Split(':')[0];
-        var appDeploymentUrl = new UriBuilder() { Scheme = "https", Host = appHost, Path = "/api/deployments/latest" }.ToString();
+        var appDeploymentUrl = new UriBuilder() { Scheme = "https", Host = appHost, Path = "/api/deployments/latest" }.Uri;
 
-        Deployment latestDeployment;
+        var deployment = await GetDeploymentAsync(client, appDeploymentUrl);
 
-        using (var response = await http.GetAsync(appDeploymentUrl))
-        {
-            try
-            {
-                latestDeployment = JObject.Parse(await response.Content.ReadAsStringAsync()).ToObject<Deployment>();
-            }
-            catch
-            {
-                latestDeployment = new Deployment { id = "0000000000000000000000000000000000000000" };
-            }
-        }
+        if (deployment == default)
+            Console.WriteLine("This will be the first deployment.");
+        else
+            Console.WriteLine($"Latest deployment was on {deployment.LastSuccessEndTime?.ToString("u") ?? "[no timestamp]"} and has ID {deployment.ID ?? "[no ID]"}.");
 
-        Console.WriteLine($"Latest deployment at {(latestDeployment.last_success_end_time?.ToString("u") ?? "[no timestamp]")} has ID {latestDeployment.id}");
-        return latestDeployment;
+        return deployment;
     }
 
     protected string CreateZipFile()
     {
         var temp = Path.Combine(Path.GetTempPath(), $"azzipgo-{Guid.NewGuid()}.zip");
 
-        Console.WriteLine($"Creating zip file...");
+        Console.Write($"Creating zip file...");
         var sw = Stopwatch.StartNew();
 
         ZipFile.CreateFromDirectory(Options.Directory, temp, CompressionLevel.Fastest, false);
 
-        Console.WriteLine($"Completed! Creating zip file took {sw.ElapsedMilliseconds} ms.");
+        Console.WriteLine($" done! This took {sw.ElapsedMilliseconds} ms.");
         return temp;
     }
 
     protected async Task<IWebApp> GetSiteAsync()
     {
-        Console.WriteLine($"Getting site {Options.Site}");
+        Console.WriteLine($"Getting site {Options.Site}.");
         var app = await AzureApi.WebApps.GetByIdAsync(SiteId);
         return app;
     }
@@ -327,7 +314,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
 
             if (oldSlot.Name.StartsWith(SlotNamePrefix + Options.TargetSlot + "-"))
             {
-                Console.WriteLine($"Deleting old temporary slot {oldSlot.Name}...");
+                Console.WriteLine($"Deleting old temporary slot {oldSlot.Name}.");
 
                 try
                 {
@@ -340,9 +327,9 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
         }
 
         if (slot != null)
-            Console.WriteLine($"Using deployment slot {slot.Name} as target...");
+            Console.WriteLine($"Using deployment slot {slot.Name} as target.");
         else
-            Console.WriteLine($"Using production slot as target...");
+            Console.WriteLine($"Using production slot as target.");
 
         return slot;
     }

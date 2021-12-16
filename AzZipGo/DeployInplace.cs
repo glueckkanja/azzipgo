@@ -15,14 +15,15 @@ public class DeployInplace : BaseDeployAction<DeployInplaceOptions>
     {
         var app = await GetSiteAsync();
         var ppTarget = await GetTargetPublishingProfileAsync(app);
+        using var ppTargetClient = CreateHttpClient(ppTarget);
 
         await ManageRunFromZipAsync(Options.TargetSlot);
 
-        var latestDeployment = await GetLatestDeployment(ppTarget);
+        var latestDeployment = await GetLatestDeployment(ppTarget, ppTargetClient);
 
         var path = CreateZipFile();
 
-        var (code, pollUrl) = await PostFileAsync(ppTarget, path);
+        var (code, pollUrl) = await PostFileAsync(ppTarget, ppTargetClient, path);
 
         if (code != HttpStatusCode.Accepted)
             return (int)code;
@@ -32,7 +33,7 @@ public class DeployInplace : BaseDeployAction<DeployInplaceOptions>
 
         File.Delete(path);
 
-        var success = await WaitForCompleteAsync(ppTarget, latestDeployment, pollUrl, false);
+        var success = await WaitForCompleteAsync(ppTargetClient, latestDeployment, pollUrl, false);
 
         Console.WriteLine();
         Console.WriteLine(success ? "Deployment succeeded." : "Deployment failed.");
