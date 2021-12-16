@@ -8,17 +8,17 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.5.3</Version>
+    <Version>1.0.0</Version>
     <PackageId>azzipgo</PackageId>
   </PropertyGroup>
 
   <PropertyGroup>
     <ToolCommandName>azzipgo</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Company>glueckkanja.com</Company>
+    <Company>glueckkanja-gab.com</Company>
     <PackageProjectUrl>https://github.com/glueckkanja/azzipgo</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>glueckkanja.com</Authors>
+    <Authors>glueckkanja-gab.com</Authors>
     <Description>AzZipGo is short for: Azure ☁️ – Zip 📦 and Go 🚀
 
 * Deploy all the things: Azure Websites, Function Apps and WebJobs!
@@ -26,16 +26,20 @@
 * Uses Kudu's ZipDeploy feature
 * Uses an auto-generated Deployment Slot and Auto-Swap when using the "deploy-with-slot" command
 * Or deploys directly to a WebSite slot using the "deploy-in-place" command</Description>
-    <RepositoryUrl></RepositoryUrl>
+    <RepositoryUrl>https://github.com/glueckkanja/azzipgo.git</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.1.4" />
