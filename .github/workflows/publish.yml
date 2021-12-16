@@ -19,7 +19,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Pack
-      run: dotnet pack -c Release --no-restore -o build
+      run: dotnet pack -c Release --no-restore --include-symbols -o build
     - name: Upload artifact
       uses: actions/upload-artifact@v2.3.1
       with:
@@ -29,5 +29,4 @@ jobs:
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
-        $file = Get-ChildItem -File build/AzZipGo.*.nupkg
-        dotnet nuget push "$file" -s "https://api.nuget.org/v3/index.json" -k "$env:NUGET_API_KEY"
+        dotnet nuget push "build/AzZipGo.*.symbols.nupkg" -s "https://api.nuget.org/v3/index.json" -k "$NUGET_API_KEY"
