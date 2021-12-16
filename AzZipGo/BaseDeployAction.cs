@@ -8,6 +8,7 @@ using Polly;
 using Polly.Retry;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -140,6 +141,7 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
         return new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(30) };
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Record struct 'Deployment' and it's properties will be not be trimmed.")]
     protected static async Task<Deployment> GetDeploymentAsync(HttpClient http, Uri pollUrl)
     {
         using (var response = await http.GetAsync(pollUrl))
