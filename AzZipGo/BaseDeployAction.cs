@@ -189,12 +189,14 @@ public abstract class BaseDeployAction<T> : BaseAction<T> where T : DeployOption
     {
         var temp = Path.Combine(Path.GetTempPath(), $"azzipgo-{Guid.NewGuid()}.zip");
 
-        Console.Write($"Creating zip file...");
+        Console.WriteLine($"Source directory: {Options.Directory}");
+        Console.WriteLine($"Temporary zip file: {temp}");
+
         var sw = Stopwatch.StartNew();
 
         ZipFile.CreateFromDirectory(Options.Directory, temp, CompressionLevel.Fastest, false);
 
-        Console.WriteLine($" done! This took {sw.ElapsedMilliseconds} ms.");
+        Console.WriteLine($"Created zip file in {sw.ElapsedMilliseconds} ms.");
         return temp;
     }
 
